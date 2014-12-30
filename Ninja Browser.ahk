@@ -313,7 +313,7 @@ show:
 		</head>
 		<body>
 		<center>
-		<img src="http://farm3.static.flickr.com/2510/3679036578_7dc5da9cbe.jpg?v=0"><br><br>
+		<img src="http://cldup.com/qwzfqh6ZOn.png"><br><br>
 		<font size="24">Ninja Browser</font>
 		</center>
 		</body>
