@@ -319,7 +319,7 @@ show:
 		</body>
 		</html>
 		)
-		COM_Invoke(pwb, "Navigate", "http://pr.ojectblue.com/ninja.html")
+		COM_Invoke(pwb, "Navigate", "https://www.google.com")
 		loop
 			If (rdy:=COM_Invoke(pwb,"readyState") = 4)
 				break
