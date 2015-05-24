@@ -1,5 +1,7 @@
-![](https://i.cloudup.com/xNVSOtf4J2.png)
+<p align="center"><img src="https://i.cloudup.com/xNVSOtf4J2.png">
+<img src="https://cldup.com/zeicunKhEm.gif"></p>
 
+# Description
 
 Ninja Browser is a browser that is instantly at your finger tips.
 
