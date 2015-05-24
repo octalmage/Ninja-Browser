@@ -1,5 +1,5 @@
 #singleinstance force
-fileinstall,lbbrowse3.dll,lbbrowse3.dll
+
 onexit, cleanup
 trans=250
 noimg=0
