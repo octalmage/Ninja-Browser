@@ -298,12 +298,8 @@ show:
 		gui,add,button, x142 y0 gstop,Stop
 		gui,add,edit,x200 y0 w200 vurl,
 		gui,add,button,x400 y0 default  ggo ,GO
-		COM_AtlAxWinInit()
-		pwb := COM_AtlAxGetControl(COM_AtlAxCreateContainer(mgH,0,23,ie_width,ie_height, "Shell.Explorer") )
-		IOleInPlaceActiveObject_Interface:="{00000117-0000-0000-C000-000000000046}"
-		pipa := COM_QueryInterface(pwb, IOleInPlaceActiveObject_Interface)
-		OnMessage(WM_KEYDOWN:=0x0100, "WM_KEYDOWN")
-		OnMessage(WM_KEYUP:=0x0101, "WM_KEYDOWN")
+		gui add, ActiveX, x0 y23 w%ie_width% h%ie_height% vWB, Shell.Explorer
+
 		h=
 		(
 		<html>
@@ -319,19 +315,18 @@ show:
 		</body>
 		</html>
 		)
-		COM_Invoke(pwb, "Navigate", "https://www.google.com")
-		loop
-			If (rdy:=COM_Invoke(pwb,"readyState") = 4)
-				break
-			ControlSetText ,Edit1, %furl%, --Ninja Browser--
-			SetTimer, updateurl, 500
+		
+		WB.Navigate("https://www.google.com")
+
+		;	ControlSetText ,Edit1, %furl%, --Ninja Browser--
+		;	SetTimer, updateurl, 500
 			time=1
 	}
 	else
 	{
 	}
 
-	WinMove, % "ahk_id " . COM_AtlAxGetContainer(pwb), , 0,23, ie_width, ie_height
+	;WinMove, % "ahk_id " . COM_AtlAxGetContainer(pwb), , 0,23, ie_width, ie_height
 	show_x:=win_x+best_x
 	show_y:=win_y+best_y
 	gui,show,  x%show_x% y%show_y% h%best_height% w%best_width%, --Ninja Browser--
@@ -371,12 +366,12 @@ refresh:
 return
 
 back:
-	COM_Invoke(pwb, "GoBack")
+	WB.GoBack()
 gosub setbuttons
 return
 
 foward:
-	COM_Invoke(pwb, "GoForward")
+	WB.GoForward()
 	gosub setbuttons
 return
 
@@ -404,10 +399,8 @@ return
 go:
 {
 	gui,submit,nohide
-	COM_Invoke(pwb, "Navigate", url)
-	loop
-	If (rdy:=COM_Invoke(pwb,"readyState") = 4)
-		break
+
+	WB.Navigate(url)
 	if noimg
 	{
 		jsAlert:=""
@@ -427,7 +420,7 @@ updateurl:
 ControlGetFocus, fcontrol, --Ninja Browser--
 IfNotEqual fcontrol, Edit1
 {
-	furl:=COM_Invoke(pwb, "LocationURL")
+	furl:=COM_Invoke(WB, "LocationURL")
 	ControlSetText ,Edit1, %furl%, --Ninja Browser--
 }
 return
