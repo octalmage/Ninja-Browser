@@ -1,4 +1,4 @@
 SDK = $(shell xcrun --show-sdk-path)
 
-test: 
-	swiftc -sdk $(SDK) test.swift
+getElement:
+	swiftc -sdk $(SDK) getElement.swift
