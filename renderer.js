@@ -11,7 +11,7 @@ function resetExitedState() {
 
 function navigateTo(url) {
   resetExitedState();
-
+  // TODO: Remove trailing slash from room domains.
   let realUrl = url;
   if (psl.isValid(realUrl)) {
     if (!/^https?:\/\//i.test(realUrl)) {
