@@ -17,6 +17,8 @@ function navigateTo(url) {
     if (!/^https?:\/\//i.test(realUrl)) {
       realUrl = `http://${realUrl}`;
     }
+  } else {
+    realUrl = `https://www.google.com/search?q=${realUrl}`;
   }
 
   document.querySelector('webview').src = realUrl;
