@@ -4,6 +4,7 @@ const path = require('path');
 const url = require('url');
 
 const { app, BrowserWindow, globalShortcut } = electron;
+app.dock.hide();
 
 let mainWindow;
 
@@ -11,7 +12,8 @@ function getLargestElement() {
   return new Promise((resolve) => {
     const bin = path.join(__dirname, 'getElement');
     childProcess.execFile(bin, (error, stdout) => {
-      const elements = JSON.parse(stdout)
+      const parsed = JSON.parse(stdout);
+      const elements = parsed
         .filter(element =>
           ![
             '',
@@ -30,6 +32,14 @@ function getLargestElement() {
         }
       }
 
+      // TODO: Make sure bestElement doesn't match window size, if it does shrink it.
+      // Check to make sure the element is large enough.
+      if (bestElement.width < 100 && bestElement.height < 100) {
+        ([bestElement] = parsed.filter(element => ['AXWindow', 'AXStandardWindow'].includes(element.role)));
+        // Account for menu bar.
+        bestElement.y += 20;
+      }
+
       return resolve(bestElement);
     });
   });
@@ -43,6 +53,7 @@ function createWindow() {
     show: false,
     frame: false,
     transparent: true,
+    resizable: false,
   });
 
   globalShortcut.register('Command+Alt+B', async () => {

@@ -82,7 +82,10 @@ func getBoundsForChildren(element: AXUIElement) -> [[String: Any]] {
 
 let app = AXUIElementCreateApplication(frontmostAppPID!);
 
-let responseDict = getBoundsForChildren(element: app)
+var axWidnow: AnyObject?
+let _ = AXUIElementCopyAttributeValue(app, "AXFocusedWindow" as CFString, &axWidnow)
+
+let responseDict = getBoundsForChildren(element: axWidnow as! AXUIElement)
 
 if let theJSONData = try? JSONSerialization.data(
   withJSONObject: responseDict,

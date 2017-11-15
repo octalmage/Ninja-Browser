@@ -1,11 +1,28 @@
+const psl = require('psl');
+
+const webview = document.querySelector('webview');
+let isLoading = false;
+
+function resetExitedState() {
+  document.body.classList.remove('exited');
+  document.body.classList.remove('crashed');
+  document.body.classList.remove('killed');
+}
 
 function navigateTo(url) {
   resetExitedState();
-  document.querySelector('webview').src = url;
+
+  let realUrl = url;
+  if (psl.isValid(realUrl)) {
+    if (!/^https?:\/\//i.test(realUrl)) {
+      realUrl = `http://${realUrl}`;
+    }
+  }
+
+  document.querySelector('webview').src = realUrl;
 }
 
 function doLayout() {
-  const webview = document.querySelector('webview');
   const controls = document.querySelector('#controls');
   const controlsHeight = controls.offsetHeight;
   const windowWidth = document.documentElement.clientWidth;
@@ -20,25 +37,19 @@ function doLayout() {
 function handleExit(event) {
   console.log(event.type);
   document.body.classList.add('exited');
-  if (event.type == 'abnormal') {
+  if (event.type === 'abnormal') {
     document.body.classList.add('crashed');
-  } else if (event.type == 'killed') {
+  } else if (event.type === 'killed') {
     document.body.classList.add('killed');
   }
 }
 
-function resetExitedState() {
-  document.body.classList.remove('exited');
-  document.body.classList.remove('crashed');
-  document.body.classList.remove('killed');
-}
-
 function handleLoadCommit() {
   resetExitedState();
-  const webview = document.querySelector('webview');
-  document.querySelector('#location').value = webview.getURL();
-  document.querySelector('#back').disabled = !webview.canGoBack();
-  document.querySelector('#forward').disabled = !webview.canGoForward();
+  const localWebview = document.querySelector('webview');
+  document.querySelector('#location').value = localWebview.getURL();
+  document.querySelector('#back').disabled = !localWebview.canGoBack();
+  document.querySelector('#forward').disabled = !localWebview.canGoForward();
 }
 
 function handleLoadStart(event) {
@@ -53,7 +64,7 @@ function handleLoadStart(event) {
   document.querySelector('#location').value = event.url;
 }
 
-function handleLoadStop(event) {
+function handleLoadStop() {
   // We don't remove the loading class immediately, instead we let the animation
   // finish, so that the spinner doesn't jerkily reset back to the 0 position.
   isLoading = false;
@@ -67,29 +78,25 @@ function handleLoadAbort(event) {
 }
 
 function handleLoadRedirect(event) {
+  const locationElement = document.querySelector('#location');
   resetExitedState();
-  document.querySelector('#location').value = event.newUrl;
+  if (event.newURL && event.isMainFrame) {
+    locationElement.value = event.newURL;
+  }
 }
 
-
-const validateUrl = value =>
-  /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
-
 window.onresize = doLayout;
-let isLoading = false;
-
-const webview = document.querySelector('webview');
 doLayout();
 
-document.querySelector('#back').onclick = function () {
+document.querySelector('#back').onclick = function goBack() {
   webview.goBack();
 };
 
-document.querySelector('#forward').onclick = function () {
+document.querySelector('#forward').onclick = function goForward() {
   webview.goForward();
 };
 
-document.querySelector('#reload').onclick = function () {
+document.querySelector('#reload').onclick = function reload() {
   if (isLoading) {
     webview.stop();
   } else {
@@ -105,7 +112,7 @@ document.querySelector('#reload').addEventListener(
   },
 );
 
-document.querySelector('#location-form').onsubmit = function (e) {
+document.querySelector('#location-form').onsubmit = function onNavigate(e) {
   e.preventDefault();
   navigateTo(document.querySelector('#location').value);
 };
