@@ -1,52 +1,6 @@
-const validateUrl = value =>
-  /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
-
-window.onresize = doLayout;
-let isLoading = false;
-
-const webview = document.querySelector('webview');
-doLayout();
-
-document.querySelector('#back').onclick = function () {
-  webview.goBack();
-};
-
-document.querySelector('#forward').onclick = function () {
-  webview.goForward();
-};
-
-document.querySelector('#reload').onclick = function () {
-  if (isLoading) {
-    webview.stop();
-  } else {
-    webview.reload();
-  }
-};
-document.querySelector('#reload').addEventListener(
-  'webkitAnimationIteration',
-  () => {
-    if (!isLoading) {
-      document.body.classList.remove('loading');
-    }
-  },
-);
-
-document.querySelector('#location-form').onsubmit = function (e) {
-  e.preventDefault();
-  navigateTo(document.querySelector('#location').value);
-};
-
-webview.addEventListener('close', handleExit);
-webview.addEventListener('did-start-loading', handleLoadStart);
-webview.addEventListener('did-stop-loading', handleLoadStop);
-webview.addEventListener('did-fail-load', handleLoadAbort);
-webview.addEventListener('did-get-redirect-request', handleLoadRedirect);
-webview.addEventListener('did-finish-load', handleLoadCommit);
-
 
 function navigateTo(url) {
   resetExitedState();
-	if (validateUrl(url))
   document.querySelector('webview').src = url;
 }
 
@@ -116,3 +70,49 @@ function handleLoadRedirect(event) {
   resetExitedState();
   document.querySelector('#location').value = event.newUrl;
 }
+
+
+const validateUrl = value =>
+  /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
+
+window.onresize = doLayout;
+let isLoading = false;
+
+const webview = document.querySelector('webview');
+doLayout();
+
+document.querySelector('#back').onclick = function () {
+  webview.goBack();
+};
+
+document.querySelector('#forward').onclick = function () {
+  webview.goForward();
+};
+
+document.querySelector('#reload').onclick = function () {
+  if (isLoading) {
+    webview.stop();
+  } else {
+    webview.reload();
+  }
+};
+document.querySelector('#reload').addEventListener(
+  'webkitAnimationIteration',
+  () => {
+    if (!isLoading) {
+      document.body.classList.remove('loading');
+    }
+  },
+);
+
+document.querySelector('#location-form').onsubmit = function (e) {
+  e.preventDefault();
+  navigateTo(document.querySelector('#location').value);
+};
+
+webview.addEventListener('close', handleExit);
+webview.addEventListener('did-start-loading', handleLoadStart);
+webview.addEventListener('did-stop-loading', handleLoadStop);
+webview.addEventListener('did-fail-load', handleLoadAbort);
+webview.addEventListener('did-get-redirect-request', handleLoadRedirect);
+webview.addEventListener('did-finish-load', handleLoadCommit);
