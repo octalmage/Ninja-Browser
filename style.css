@@ -3,6 +3,14 @@ body {
 	padding: 0;
 	height: 100%;
 }
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+	outline: none;
+}
+
 .webview {
 	position: fixed;
 	top: 33px;
