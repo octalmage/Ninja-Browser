@@ -1,34 +1,88 @@
 import AppKit
 let frontmostAppPID = NSWorkspace.shared().frontmostApplication?.processIdentifier
 
-let app = AXUIElementCreateApplication(frontmostAppPID!);
+func getBounds(element: AXUIElement) -> [String: Any] {
+  var axFrame: AnyObject?
+  AXUIElementCopyAttributeValue(element, "AXFrame" as CFString, &axFrame)
+  if axFrame == nil {
+    return [:]
+  }
 
-var focused: CFTypeRef?
-AXUIElementCopyAttributeValue(app, "AXFocusedUIElement" as CFString, &focused)
+  var frame = CGRect()
+  if #available(OSX 10.11, *) {
+    AXValueGetValue(axFrame as! AXValue,  AXValueType.cgRect, &frame)
 
-var axPosition: CFTypeRef?
-AXUIElementCopyAttributeValue(focused as! AXUIElement, "AXPosition" as CFString, &axPosition)
-var axSize: CFTypeRef?
-AXUIElementCopyAttributeValue(focused as! AXUIElement, "AXSize" as CFString, &axSize)
+  } else {
+    // TODO: Fix this.
+    print("OS Not supported.")
+  }
 
-var position = CGPoint()
-var size = CGSize()
-if #available(OSX 10.11, *) {
-  AXValueGetValue(axPosition as! AXValue,  AXValueType.cgPoint, &position)
-  AXValueGetValue(axSize as! AXValue,  AXValueType.cgSize, &size)
-} else {
-  print("OS Not supported.")
+  // Filter out small items.
+  if frame.height == 0 || frame.width == 0 {
+    return [:]
+  }
+
+  var axRole: AnyObject?
+  AXUIElementCopyAttributeValue(element, "AXRole" as CFString, &axRole)
+
+  var role: String = ""
+  if axRole != nil  {
+    role = axRole as! String
+  }
+
+  // Filter out roles that aren't useful.
+  if role == "AXMenuItem" {
+    return [:]
+  }
+
+  let responseDict: [String: Any] = [
+    "x": Int(frame.minX),
+    "y": Int(frame.minY),
+    "width": Int(frame.width),
+    "height": Int(frame.height),
+    "role": role
+  ]
+
+  return responseDict
 }
 
-let responseDict: [String: Int] = [
-  "x": Int(position.x),
-  "y": Int(position.y),
-  "width": Int(size.width),
-  "height": Int(size.height),
-]
+func getBoundsForChildren(element: AXUIElement) -> [[String: Any]] {
+  var allElementsBounds: [[String: Any]] = []
 
-// print(responseDict)
+  var axChildren: AnyObject?
+  let _ = AXUIElementCopyAttributeValue(element, "AXChildren" as CFString, &axChildren)
+  var children: [AXUIElement] = []
 
+  if axChildren != nil {
+    children = axChildren as! [AXUIElement]
+  }
+
+  let bounds = getBounds(element: element)
+  if !bounds.isEmpty {
+    allElementsBounds.append(bounds)
+  }
+
+  if !children.isEmpty {
+    for child in children {
+      var boundsforChildren = getBoundsForChildren(element: child)
+      if bounds["role"] != nil && bounds["role"] as! String == "AXScrollArea" {
+        for index in 0..<boundsforChildren.count {
+          boundsforChildren[index]["height"] = bounds["height"]
+          boundsforChildren[index]["y"] = bounds["y"]
+        }
+      }
+      if !boundsforChildren.isEmpty {
+        allElementsBounds += boundsforChildren
+      }
+    }
+  }
+
+  return allElementsBounds
+}
+
+let app = AXUIElementCreateApplication(frontmostAppPID!);
+
+let responseDict = getBoundsForChildren(element: app)
 
 if let theJSONData = try? JSONSerialization.data(
   withJSONObject: responseDict,
@@ -37,16 +91,3 @@ if let theJSONData = try? JSONSerialization.data(
   let theJSONText = String(data: theJSONData, encoding: .ascii)
   print(theJSONText!)
 }
-
-// print(size)
-
-
-
-// AXValueGetValue(mem as! AXValue, AXValueType.CGSize, &val)
-
-// var names2: CFArray?
-// let error2 = AXUIElementCopyAttributeNames(focused as! AXUIElement, &names2)
-// print(names2!)
-
-// let count = CFArrayGetCount(elements);
-//
