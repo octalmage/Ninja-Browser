@@ -3,10 +3,17 @@ const { spawn } = require('child_process');
 const path = require('path');
 const url = require('url');
 
-const { app, BrowserWindow, globalShortcut } = electron;
+const {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  Tray,
+  Menu,
+} = electron;
 app.dock.hide();
 
 let mainWindow;
+let appTray = null;
 
 // Fix for https://stackoverflow.com/a/28260423/2233771
 function exec(command, callback) {
@@ -120,6 +127,15 @@ function watchMouse() {
 }
 
 function createWindow() {
+  appTray = new Tray(path.join(__dirname, 'tray.png'));
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Ninja Browser' },
+    { type: 'separator' },
+    { label: 'Exit', click: () => app.exit() },
+  ]);
+
+  appTray.setContextMenu(contextMenu);
+
   watchMouse();
 
   mainWindow = new BrowserWindow({
