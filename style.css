@@ -17,6 +17,7 @@ button:focus {
 	left: 0;
 	right: 0;
 	bottom: 0%;
+	filter: grayscale(100%);
 }
 
 #controls {

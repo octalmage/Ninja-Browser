@@ -1,6 +1,12 @@
 const psl = require('psl');
+const path = require('path');
+const fs = require('fs');
 
 const webview = document.querySelector('webview');
+
+const transparentPath = path.join(__dirname, 'assets', 'css', 'transparent.css');
+const transparentCSS = fs.readFileSync(transparentPath, 'utf8');
+
 let isLoading = false;
 
 function resetExitedState() {
@@ -125,3 +131,6 @@ webview.addEventListener('did-stop-loading', handleLoadStop);
 webview.addEventListener('did-fail-load', handleLoadAbort);
 webview.addEventListener('did-get-redirect-request', handleLoadRedirect);
 webview.addEventListener('did-finish-load', handleLoadCommit);
+webview.addEventListener('dom-ready', () => {
+  webview.insertCSS(transparentCSS);
+});
