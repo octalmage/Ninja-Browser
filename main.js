@@ -25,7 +25,11 @@ function exec(command, callback) {
 
 function getLargestElement() {
   return new Promise((resolve) => {
-    const bin = path.join(__dirname, 'getElement');
+    /**
+     * Handle asar packages:
+     * https://electron.atom.io/docs/tutorial/application-packaging/#executing-binaries-inside-asar-archive
+     */
+    const bin = path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), 'getElement');
     exec(bin, (stdout) => {
       // TODO: Catch parse errors.
       const parsed = JSON.parse(stdout);
