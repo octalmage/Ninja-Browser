@@ -1,6 +1,41 @@
 import AppKit
 let frontmostAppPID = NSWorkspace.shared().frontmostApplication?.processIdentifier
 
+func getRole(element: AXUIElement) -> String {
+  var axRole: AnyObject?
+  AXUIElementCopyAttributeValue(element, "AXRole" as CFString, &axRole)
+
+  var role: String = ""
+  if axRole != nil  {
+    role = axRole as! String
+  }
+
+  return role
+}
+
+func getSubRole(element: AXUIElement) -> String {
+  var axSubRole: AnyObject?
+  AXUIElementCopyAttributeValue(element, "AXSubrole" as CFString, &axSubRole)
+
+  var subRole: String = ""
+  if axSubRole != nil  {
+    subRole = axSubRole as! String
+  }
+
+  return subRole
+}
+
+func getChildren(element: AXUIElement) -> [AXUIElement] {
+  var axChildren: AnyObject?
+  let _ = AXUIElementCopyAttributeValue(element, "AXChildren" as CFString, &axChildren)
+  var children: [AXUIElement] = []
+
+  if axChildren != nil {
+    children = axChildren as! [AXUIElement]
+  }
+  return children
+}
+
 func getBounds(element: AXUIElement) -> [String: Any] {
   var axFrame: AnyObject?
   AXUIElementCopyAttributeValue(element, "AXFrame" as CFString, &axFrame)
@@ -22,13 +57,7 @@ func getBounds(element: AXUIElement) -> [String: Any] {
     return [:]
   }
 
-  var axRole: AnyObject?
-  AXUIElementCopyAttributeValue(element, "AXRole" as CFString, &axRole)
-
-  var role: String = ""
-  if axRole != nil  {
-    role = axRole as! String
-  }
+  let role = getRole(element: element)
 
   // Filter out roles that aren't useful.
   if role == "AXMenuItem" {
@@ -40,7 +69,8 @@ func getBounds(element: AXUIElement) -> [String: Any] {
     "y": Int(frame.minY),
     "width": Int(frame.width),
     "height": Int(frame.height),
-    "role": role
+    "role": role,
+    "subRole": getSubRole(element: element),
   ]
 
   return responseDict
@@ -49,25 +79,31 @@ func getBounds(element: AXUIElement) -> [String: Any] {
 func getBoundsForChildren(element: AXUIElement) -> [[String: Any]] {
   var allElementsBounds: [[String: Any]] = []
 
-  var axChildren: AnyObject?
-  let _ = AXUIElementCopyAttributeValue(element, "AXChildren" as CFString, &axChildren)
-  var children: [AXUIElement] = []
-
-  if axChildren != nil {
-    children = axChildren as! [AXUIElement]
-  }
-
   let bounds = getBounds(element: element)
   if !bounds.isEmpty {
     allElementsBounds.append(bounds)
   }
 
+  let children = getChildren(element: element)
+
   if !children.isEmpty {
     for child in children {
       var boundsforChildren = getBoundsForChildren(element: child)
+
+      /**
+       * Elements within a scroll area extend outside the standard frame of the
+       * element. For example, if the scroll area is x0, y0, w100, h200 and it
+       * contains a textarea, that textarea's y could be -1000 if the scroll
+       * area is scrolled to the bottom. For now I'm just assigning the height
+       * and y to the scroll area to the children, but this is just a hack.
+       * TODO: Figure this out.
+       *
+       */
       if bounds["role"] != nil && bounds["role"] as! String == "AXScrollArea" {
         for index in 0..<boundsforChildren.count {
           boundsforChildren[index]["height"] = bounds["height"]
+          boundsforChildren[index]["width"] = bounds["width"]
+          boundsforChildren[index]["x"] = bounds["x"]
           boundsforChildren[index]["y"] = bounds["y"]
         }
       }
