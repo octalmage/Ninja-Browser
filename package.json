@@ -1,0 +1,64 @@
+{
+  "name": "ninja-browser",
+  "version": "1.0.0",
+  "description": "A browser for Ninjas.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "make": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
+    "build": "npm run make && npm run electron-builder",
+    "lint": "eslint *.js",
+    "test": "npm run lint",
+    "electron-builder": "electron-builder"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "~1.7.8",
+    "electron-builder": "^19.27.7",
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0"
+  },
+  "dependencies": {
+    "psl": "^1.1.20"
+  },
+  "build": {
+    "appId": "com.octalmage.ninjabrowser",
+    "productName": "Ninja Browser",
+    "asar": true,
+    "asarUnpack": [
+      "getElement"
+    ],
+    "directories": {
+      "buildResources": "resources",
+      "output": "build"
+    },
+    "mac": {
+      "icon": "./logo.icns",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "octalmage"
+    }
+  }
+}
