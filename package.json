@@ -5,10 +5,11 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "make": "swiftc -sdk $(xcrun --show-sdk-path) -O getElement.swift",
+    "make": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
+    "build": "npm run make && npm run electron-builder",
     "lint": "eslint *.js",
     "test": "npm run lint",
-    "build": "electron-builder"
+    "electron-builder": "electron-builder"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -34,8 +35,12 @@
     "psl": "^1.1.20"
   },
   "build": {
+    "appId": "com.octalmage.ninjabrowser",
+    "productName": "Ninja Browser",
     "asar": true,
-    "asarUnpack": ["getElement"],
+    "asarUnpack": [
+      "getElement"
+    ],
     "directories": {
       "buildResources": "resources",
       "output": "build"

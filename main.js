@@ -36,7 +36,7 @@ function getLargestElement() {
      * Handle asar packages:
      * https://electron.atom.io/docs/tutorial/application-packaging/#executing-binaries-inside-asar-archive
      */
-    const bin = path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), 'getElement');
+    const bin = path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), 'getElements');
     exec(bin, (stdout) => {
       // TODO: Catch parse errors.
       const elements = JSON.parse(stdout);
