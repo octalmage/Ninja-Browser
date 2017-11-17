@@ -53,7 +53,7 @@ func getBounds(element: AXUIElement) -> [String: Any] {
   }
 
   // Filter out small items.
-  if frame.height == 0 || frame.width == 0 {
+  if frame.height < 50 || frame.width < 50 {
     return [:]
   }
 
@@ -76,20 +76,24 @@ func getBounds(element: AXUIElement) -> [String: Any] {
   return responseDict
 }
 
+/**
+ * TODO: Optimize this. I figured that a tail call optimization would work, but
+ * apparently Swift doesn't guarantee tail call optimizations, so it will have
+ * to be a solution that isn't recursive.
+ */
 func getBoundsForChildren(element: AXUIElement) -> [[String: Any]] {
   var allElementsBounds: [[String: Any]] = []
 
   let bounds = getBounds(element: element)
+  var children: [AXUIElement] = []
   if !bounds.isEmpty {
     allElementsBounds.append(bounds)
+    children = getChildren(element: element)
   }
-
-  let children = getChildren(element: element)
 
   if !children.isEmpty {
     for child in children {
       var boundsforChildren = getBoundsForChildren(element: child)
-
       /**
        * Elements within a scroll area extend outside the standard frame of the
        * element. For example, if the scroll area is x0, y0, w100, h200 and it
@@ -125,7 +129,7 @@ let responseDict = getBoundsForChildren(element: axWidnow as! AXUIElement)
 
 if let theJSONData = try? JSONSerialization.data(
   withJSONObject: responseDict,
-  options: [.prettyPrinted]
+  options: []
 ) {
   let theJSONText = String(data: theJSONData, encoding: .ascii)
   print(theJSONText!)

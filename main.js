@@ -39,25 +39,25 @@ function getLargestElement() {
     const bin = path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), 'getElement');
     exec(bin, (stdout) => {
       // TODO: Catch parse errors.
-      const parsed = JSON.parse(stdout);
-      const elements = parsed
-        .filter(element =>
-          ![
-            '',
-            'AXWindow', // Exclude windows, use these as a last resort.
-            'AXMenu', // Menus aren't a great choice.
-            'AXMenuBar', // This is the menu bar at the top, also not good.
-            'AXMenuBarItem', // Related to above.
-            'AXSplitGroup', // This means that it has children, and they might be better picks.
-          ].includes(element.role));
-
+      const elements = JSON.parse(stdout);
       let bestElement = null;
       let bestArea = 0;
-      for (const element of elements) { // eslint-disable-line no-restricted-syntax
-        const newArea = element.height * element.width;
-        if (newArea > bestArea) {
-          bestElement = element;
-          bestArea = newArea;
+      const elementsLength = elements.length;
+      for (let i = 0; i < elementsLength; i += 1) {
+        const element = elements[i];
+        if (![
+          '',
+          'AXWindow', // Exclude windows, use these as a last resort.
+          'AXMenu', // Menus aren't a great choice.
+          'AXMenuBar', // This is the menu bar at the top, also not good.
+          'AXMenuBarItem', // Related to above.
+          'AXSplitGroup', // This means that it has children, and they might be better picks.
+        ].includes(element.role)) {
+          const newArea = element.height * element.width;
+          if (newArea > bestArea) {
+            bestElement = element;
+            bestArea = newArea;
+          }
         }
       }
 
@@ -65,11 +65,11 @@ function getLargestElement() {
        *  TODO: Look for AXCloseButton subRole and use that to help fix windows
        *  that have custom menu bars.
        */
-
       // TODO: Make sure bestElement doesn't match window size, if it does shrink it.
+
       // Check to make sure the element is large enough.
-      if (bestElement.width < 100 || bestElement.height < 100) {
-        ([bestElement] = parsed.filter(element => ['AXWindow', 'AXStandardWindow'].includes(element.role)));
+      if (!bestElement || bestElement.width < 100 || bestElement.height < 100) {
+        ([bestElement] = elements.filter(element => ['AXWindow', 'AXStandardWindow'].includes(element.role)));
         // Account for menu bar.
         bestElement.y += 20;
         bestElement.height -= 20;
@@ -145,6 +145,7 @@ function createWindow() {
     show: false,
     frame: false,
     resizable: false,
+    hasShadow: false,
   });
 
   globalShortcut.register('Command+Alt+B', async () => {
