@@ -39,7 +39,7 @@
     "productName": "Ninja Browser",
     "asar": true,
     "asarUnpack": [
-      "getElement"
+      "getElements"
     ],
     "directories": {
       "buildResources": "resources",
