@@ -4,7 +4,8 @@
       "env",
       {
         "targets": {
-          "electron": "1.7.9"
+          "electron": "1.7.9",
+          "uglify": true
         }
       }
     ],

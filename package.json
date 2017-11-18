@@ -33,13 +33,13 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "raw-loader": "^0.5.1"
+    "raw-loader": "^0.5.1",
+    "webpack": "^3.8.1"
   },
   "dependencies": {
     "psl": "^1.1.20",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
-    "webpack": "^3.8.1"
   },
   "build": {
     "appId": "com.octalmage.ninjabrowser",
