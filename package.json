@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "make": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
+    "make:swift": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
+    "make:clang": "clang isTrusted.m -fmodules -mmacosx-version-min=10.7 -o isTrusted",
+    "make": "npm run make:swift && npm run make:clang",
     "build": "npm run make && npm run webpack:build && npm run electron-builder",
     "lint": "eslint *.js",
     "test": "npm run lint",
@@ -39,14 +41,15 @@
   "dependencies": {
     "psl": "^1.1.20",
     "react": "^16.1.1",
-    "react-dom": "^16.1.1",
+    "react-dom": "^16.1.1"
   },
   "build": {
     "appId": "com.octalmage.ninjabrowser",
     "productName": "Ninja Browser",
     "asar": true,
     "asarUnpack": [
-      "getElements"
+      "getElements",
+      "isTrusted"
     ],
     "directories": {
       "buildResources": "resources",
