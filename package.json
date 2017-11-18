@@ -6,22 +6,25 @@
   "scripts": {
     "start": "electron .",
     "make": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
-    "build": "npm run make && npm run electron-builder",
+    "build": "npm run make && npm run webpack:build && npm run electron-builder",
     "lint": "eslint *.js",
     "test": "npm run lint",
-    "electron-builder": "electron-builder"
+    "electron-builder": "electron-builder",
+    "webpack:build": "webpack -p",
+    "webpack:watch": "webpack -w"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/octalmage/Ninja-Browser",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "browser",
+    "ghostzilla"
   ],
   "author": "GitHub",
   "license": "GPL-3.0",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
     "electron": "~1.7.8",
     "electron-builder": "^19.27.7",
     "eslint": "^4.11.0",
@@ -29,10 +32,14 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-react": "^7.4.0"
+    "eslint-plugin-react": "^7.4.0",
+    "raw-loader": "^0.5.1"
   },
   "dependencies": {
-    "psl": "^1.1.20"
+    "psl": "^1.1.20",
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "webpack": "^3.8.1"
   },
   "build": {
     "appId": "com.octalmage.ninjabrowser",
