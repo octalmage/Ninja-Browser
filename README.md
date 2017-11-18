@@ -12,6 +12,10 @@ To activate the browser, move the mouse to each side of the screen.
 
 For example, move the mouse to the left side, then the right, then the left side again, and the browser will embed itself in the current window.
 
+## Demo
+
+![](.github/demo.gif)
+
 ## Usage
 
 After opening Ninja Browser for the first time you need to grant it access to the Mac accessibility API. This is needed to allow Ninja Browser to find the optimal hiding place. You'll be prompted to open System Preferences:
@@ -23,10 +27,6 @@ Then make sure Ninja Browser is checked in the accessibility list:
 ![](.github/preferences.png)
 
 Then you're ready to go! Open Ninja Browser using the hotkey <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>b</kbd>, or by moving the mouse to each side of the screen.
-
-## Demo
-
-![](.github/demo.gif)
 
 ## Story
 
