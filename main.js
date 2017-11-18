@@ -9,11 +9,21 @@ const {
   globalShortcut,
   Tray,
   Menu,
+  Notification,
 } = electron;
 app.dock.hide();
 
 let mainWindow;
 let appTray = null;
+
+/**
+ * Handle asar packages:
+ * https://electron.atom.io/docs/tutorial/application-packaging/#executing-binaries-inside-asar-archive
+ */
+const getBinPath = bin => path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), bin);
+
+const getElements = getBinPath('getElements');
+const isTrusted = getBinPath('isTrusted');
 
 // Fix for https://stackoverflow.com/a/28260423/2233771
 function exec(command, callback) {
@@ -30,14 +40,20 @@ function exec(command, callback) {
   });
 }
 
+exec(isTrusted, (output) => {
+  if (output !== '1') {
+    const notification = new Notification({
+      title: 'Ninja Browser',
+      body: 'Please grant Ninja Browser access to the Mac OS accessibility features, located in System Preferences.',
+    });
+
+    notification.show();
+  }
+});
+
 function getLargestElement() {
   return new Promise((resolve) => {
-    /**
-     * Handle asar packages:
-     * https://electron.atom.io/docs/tutorial/application-packaging/#executing-binaries-inside-asar-archive
-     */
-    const bin = path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), 'getElements');
-    exec(bin, (stdout) => {
+    exec(getElements, (stdout) => {
       // TODO: Catch parse errors.
       const elements = JSON.parse(stdout);
       let bestElement = null;
