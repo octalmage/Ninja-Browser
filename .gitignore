@@ -1,6 +1,7 @@
 node_modules
 build
 getElements
+dist
 
 # Windows image file caches
 Thumbs.db

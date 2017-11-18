@@ -29,15 +29,6 @@ function exec(command, callback) {
     callback(list.join(''));
   });
 }
-function blockCSS(browserWindow) {
-  browserWindow.webContents.session.webRequest.onBeforeRequest(['*://*./*'], (details, callback) => {
-    if (details.resourceType === 'stylesheet' && details.url.includes('http')) {
-      callback({ cancel: true });
-    } else {
-      callback({ cancel: false });
-    }
-  });
-}
 
 function getLargestElement() {
   return new Promise((resolve) => {
@@ -161,7 +152,6 @@ function createWindow() {
     showWindow();
   });
 
-
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
@@ -169,8 +159,6 @@ function createWindow() {
   }));
 
   mainWindow.on('blur', () => mainWindow.hide());
-
-  blockCSS(mainWindow);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
