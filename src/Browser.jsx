@@ -10,6 +10,7 @@ class Browser extends React.Component {
     this.state = {
       location: 'https://www.google.com/',
       isLoading: true,
+      showLoadingAnimation: true,
       canGoBack: false,
       canGoForward: false,
     };
@@ -20,6 +21,7 @@ class Browser extends React.Component {
     this.handleLoadRedirect = this.handleLoadRedirect.bind(this);
     this.handleLoadCommit = this.handleLoadCommit.bind(this);
     this.handleReload = this.handleReload.bind(this);
+    this.handleStopReloadAnimation = this.handleStopReloadAnimation.bind(this);
   }
 
   componentDidMount() {
@@ -32,6 +34,14 @@ class Browser extends React.Component {
     this.webview.addEventListener('dom-ready', () => {
       this.webview.insertCSS(transparentCSS);
     });
+  }
+
+  // We don't remove the loading class immediately, instead we let the animation
+  // finish, so that the spinner doesn't jerkily reset back to the 0 position.
+  handleStopReloadAnimation() {
+    if (!this.state.isLoading) {
+      this.setState({ showLoadingAnimation: false });
+    }
   }
 
   handleLoadCommit() {
@@ -49,7 +59,7 @@ class Browser extends React.Component {
   }
 
   handleLoadStart(e) {
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, showLoadingAnimation: true });
     if (!e.isTopLevel) {
       return;
     }
@@ -89,11 +99,11 @@ class Browser extends React.Component {
       location,
       canGoBack,
       canGoForward,
-      isLoading,
+      showLoadingAnimation,
     } = this.state;
 
     return (
-      <div className={`${isLoading && 'loading'}`}>
+      <div className={`${showLoadingAnimation && 'loading'}`}>
         <div id="controls">
           <button
             id="back"
@@ -115,6 +125,7 @@ class Browser extends React.Component {
             id="reload"
             title="Reload"
             onClick={this.handleReload}
+            onAnimationIteration={this.handleStopReloadAnimation}
           >
             &#10227;
           </button>
