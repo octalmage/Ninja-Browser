@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import psl from 'psl';
+import { tldExists } from 'tldjs';
 import transparentCSS from './css/transparent.css';
 
 class Browser extends React.Component {
@@ -74,16 +74,17 @@ class Browser extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     // TODO: Remove trailing slash from room domains.
-    let realUrl = this.state.location;
-    if (psl.isValid(realUrl)) {
-      if (!/^https?:\/\//i.test(realUrl)) {
-        realUrl = `http://${realUrl}`;
+    let newUrl = this.state.location;
+    if (tldExists(newUrl) && newUrl.split('.').length > 1 && newUrl.split('.')[0].length > 0) {
+      // Add http to the url if it's missing.
+      if (!/^https?/ig.test(newUrl)) {
+        newUrl = `http://${newUrl}`;
       }
     } else {
-      realUrl = `https://www.google.com/search?q=${realUrl}`;
+      newUrl = `https://www.google.com/search?q=${newUrl}`;
     }
 
-    this.webview.src = realUrl;
+    this.webview.src = newUrl;
   }
 
   handleReload() {
