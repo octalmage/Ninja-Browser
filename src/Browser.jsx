@@ -1,9 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { URL } from 'url';
 import { tldExists } from 'tldjs';
 import transparentCSS from './css/transparent.css';
 
 class Browser extends React.Component {
+  static fixUrlDisplay(url) {
+    let finalUrl = url;
+    const parsedUrl = new URL(finalUrl);
+    if (parsedUrl.pathname === '/') {
+      finalUrl = finalUrl.slice(0, -1);
+    }
+
+    return finalUrl;
+  }
+
   constructor(props) {
     super(props);
 
@@ -22,18 +33,42 @@ class Browser extends React.Component {
     this.handleLoadCommit = this.handleLoadCommit.bind(this);
     this.handleReload = this.handleReload.bind(this);
     this.handleStopReloadAnimation = this.handleStopReloadAnimation.bind(this);
+    this.handleDomReady = this.handleDomReady.bind(this);
+    this.handleWillNavigate = this.handleWillNavigate.bind(this);
+    this.handleEvents = this.handleEvents.bind(this);
   }
 
   componentDidMount() {
-    // this.webview.addEventListener('close', handleExit);
-    this.webview.addEventListener('did-start-loading', this.handleLoadStart);
-    this.webview.addEventListener('did-stop-loading', this.handleLoadStop);
-    // this.webview.addEventListener('did-fail-load', handleLoadAbort);
-    this.webview.addEventListener('did-get-redirect-request', this.handleLoadRedirect);
-    this.webview.addEventListener('did-finish-load', this.handleLoadCommit);
-    this.webview.addEventListener('dom-ready', () => {
-      this.webview.insertCSS(transparentCSS);
+    this.handleEvents(true);
+  }
+
+  componentWillUnmount() {
+    this.handleEvents(false);
+  }
+
+  handleEvents(add = true) {
+    this.events = [
+      { name: 'did-start-loading', handler: this.handleLoadStart },
+      { name: 'will-navigate', handler: this.handleWillNavigate },
+      { name: 'did-stop-loading', handler: this.handleLoadStop },
+      { name: 'did-get-redirect-request', handler: this.handleLoadRedirect },
+      { name: 'did-finish-load', handler: this.handleLoadCommit },
+      { name: 'dom-ready', handler: this.handleDomReady },
+    ];
+
+    const action = add ? 'addEventListener' : 'removeEventListener';
+
+    this.events.forEach((event) => {
+      this.webview[action](event.name, event.handler);
     });
+  }
+
+  handleWillNavigate(e) {
+    this.setState({ location: e.url });
+  }
+
+  handleDomReady() {
+    this.webview.insertCSS(transparentCSS);
   }
 
   // We don't remove the loading class immediately, instead we let the animation
@@ -46,7 +81,7 @@ class Browser extends React.Component {
 
   handleLoadCommit() {
     this.setState({
-      location: this.webview.getURL(),
+      location: Browser.fixUrlDisplay(this.webview.getURL()),
       canGoBack: this.webview.canGoBack(),
       canGoForward: this.webview.canGoForward(),
     });
