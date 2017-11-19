@@ -110,7 +110,7 @@ function createSettingsWindow() {
   const settingsWin = new BrowserWindow({
     toolbar: false,
     width: 225,
-    height: 125,
+    height: 135,
     resizable: false,
     title: 'Settings',
   });
