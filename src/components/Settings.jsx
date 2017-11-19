@@ -56,7 +56,16 @@ class Settings extends React.PureComponent {
           />{' '}
           Enable activation hotkey
           <br />
-          <input type="submit" value="Save" />
+
+          <input
+            type="checkbox"
+            name="runAtStartup"
+            checked={settings.runAtStartup}
+            onChange={this.handleCheck}
+          />{' '}
+          Launch Ninja Browser at startup
+          <br />
+          <input type="submit" value="Save" className="saveButton" />
         </form>
       </div>
     );

@@ -37,6 +37,7 @@ function getSettings() {
   return {
     mouseGesture: settings.get('mouseGesture', true),
     activationHotkey: settings.get('activationHotkey', true),
+    runAtStartup: settings.get('runAtStartup', false),
   };
 }
 
@@ -87,7 +88,7 @@ function watchMouse() {
 }
 
 function processSettings() {
-  const { mouseGesture, activationHotkey } = getSettings();
+  const { mouseGesture, activationHotkey, runAtStartup } = getSettings();
 
   if (mouseGesture) {
     watchMouse();
@@ -104,13 +105,19 @@ function processSettings() {
   } else if (globalShortcut.isRegistered(accelerator)) {
     globalShortcut.unregister(accelerator);
   }
+
+  if (runAtStartup) {
+    app.setLoginItemSettings({ openAtLogin: true });
+  } else if (app.getLoginItemSettings().openAtLogin) {
+    app.setLoginItemSettings({ openAtLogin: false });
+  }
 }
 
 function createSettingsWindow() {
   const settingsWin = new BrowserWindow({
     toolbar: false,
-    width: 225,
-    height: 135,
+    width: 300,
+    height: 175,
     resizable: false,
     title: 'Settings',
   });
