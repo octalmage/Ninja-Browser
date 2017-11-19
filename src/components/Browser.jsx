@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { tldExists } from 'tldjs';
-import transparentCSS from './css/transparent.css';
+import transparentCSS from './css/webview/transparent.css';
 
 class Browser extends React.Component {
   constructor(props) {
