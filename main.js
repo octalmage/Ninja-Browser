@@ -1,7 +1,10 @@
 const electron = require('electron'); // eslint-disable-line import/no-extraneous-dependencies
-const { spawn } = require('child_process');
 const path = require('path');
 const url = require('url');
+const settings = require('electron-settings');
+const pkg = require('./package.json');
+const { exec, getBinPath } = require('./src/utilities');
+const getLargestElement = require('./src/getLargestElement');
 
 const {
   app,
@@ -15,30 +18,9 @@ app.dock.hide();
 
 let mainWindow;
 let appTray = null;
+let watchMouseTimer;
 
-/**
- * Handle asar packages:
- * https://electron.atom.io/docs/tutorial/application-packaging/#executing-binaries-inside-asar-archive
- */
-const getBinPath = bin => path.join(__dirname.replace('app.asar', 'app.asar.unpacked'), bin);
-
-const getElements = getBinPath('getElements');
 const isTrusted = getBinPath('isTrusted');
-
-// Fix for https://stackoverflow.com/a/28260423/2233771
-function exec(command, callback) {
-  const proc = spawn(command);
-
-  const list = [];
-
-  proc.stdout.on('data', (chunk) => {
-    list.push(chunk);
-  });
-
-  proc.stdout.on('end', () => {
-    callback(list.join(''));
-  });
-}
 
 exec(isTrusted, (output) => {
   if (output !== '1') {
@@ -51,49 +33,11 @@ exec(isTrusted, (output) => {
   }
 });
 
-function getLargestElement() {
-  return new Promise((resolve) => {
-    exec(getElements, (stdout) => {
-      // TODO: Catch parse errors.
-      const elements = JSON.parse(stdout);
-      let bestElement = null;
-      let bestArea = 0;
-      const elementsLength = elements.length;
-      for (let i = 0; i < elementsLength; i += 1) {
-        const element = elements[i];
-        if (![
-          '',
-          'AXWindow', // Exclude windows, use these as a last resort.
-          'AXMenu', // Menus aren't a great choice.
-          'AXMenuBar', // This is the menu bar at the top, also not good.
-          'AXMenuBarItem', // Related to above.
-          'AXSplitGroup', // This means that it has children, and they might be better picks.
-        ].includes(element.role)) {
-          const newArea = element.height * element.width;
-          if (newArea > bestArea) {
-            bestElement = element;
-            bestArea = newArea;
-          }
-        }
-      }
-
-      /**
-       *  TODO: Look for AXCloseButton subRole and use that to help fix windows
-       *  that have custom menu bars.
-       */
-      // TODO: Make sure bestElement doesn't match window size, if it does shrink it.
-
-      // Check to make sure the element is large enough.
-      if (!bestElement || bestElement.width < 100 || bestElement.height < 100) {
-        ([bestElement] = elements.filter(element => ['AXWindow', 'AXStandardWindow'].includes(element.role)));
-        // Account for menu bar.
-        bestElement.y += 20;
-        bestElement.height -= 20;
-      }
-
-      return resolve(bestElement);
-    });
-  });
+function getSettings() {
+  return {
+    mouseGesture: settings.get('mouseGesture', true),
+    activationHotkey: settings.get('activationHotkey', true),
+  };
 }
 
 async function showWindow() {
@@ -111,7 +55,7 @@ function watchMouse() {
   let hits = '';
   let wait = false;
   let expire = Date.now();
-  setInterval(() => {
+  watchMouseTimer = setInterval(() => {
     if (expire < Date.now()) {
       hits = '';
     }
@@ -142,17 +86,63 @@ function watchMouse() {
   }, 100);
 }
 
+function processSettings() {
+  const { mouseGesture, activationHotkey } = getSettings();
+
+  if (mouseGesture) {
+    watchMouse();
+  } else {
+    clearInterval(watchMouseTimer);
+  }
+
+  const accelerator = 'Command+Alt+B';
+
+  if (activationHotkey) {
+    globalShortcut.register(accelerator, () => {
+      showWindow();
+    });
+  } else if (globalShortcut.isRegistered(accelerator)) {
+    globalShortcut.unregister(accelerator);
+  }
+}
+
+function createSettingsWindow() {
+  const settingsWin = new BrowserWindow({
+    toolbar: false,
+    width: 225,
+    height: 125,
+    resizable: false,
+    title: 'Settings',
+  });
+
+  settingsWin.settings = getSettings();
+  settingsWin.updateSettings = (newSettings) => {
+    settings.setAll(newSettings);
+    settingsWin.close();
+    processSettings();
+  };
+
+  settingsWin.loadURL(url.format({
+    pathname: path.join(__dirname, 'dist/settings.html'),
+    protocol: 'file:',
+    slashes: true,
+  }));
+}
+
 function createWindow() {
   appTray = new Tray(path.join(__dirname, 'tray.png'));
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Ninja Browser' },
+    { type: 'separator' },
+    { label: `v${pkg.version}` },
+    { label: 'Settings', click: () => createSettingsWindow() },
     { type: 'separator' },
     { label: 'Exit', click: () => app.exit() },
   ]);
 
   appTray.setContextMenu(contextMenu);
 
-  watchMouse();
+  processSettings();
 
   mainWindow = new BrowserWindow({
     width: 800,
@@ -162,10 +152,6 @@ function createWindow() {
     frame: false,
     resizable: false,
     hasShadow: false,
-  });
-
-  globalShortcut.register('Command+Alt+B', async () => {
-    showWindow();
   });
 
   mainWindow.loadURL(url.format({
