@@ -1,20 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { URL } from 'url';
 import { tldExists } from 'tldjs';
 import transparentCSS from './css/transparent.css';
 
 class Browser extends React.Component {
-  static fixUrlDisplay(url) {
-    let finalUrl = url;
-    const parsedUrl = new URL(finalUrl);
-    if (parsedUrl.pathname === '/') {
-      finalUrl = finalUrl.slice(0, -1);
-    }
-
-    return finalUrl;
-  }
-
   constructor(props) {
     super(props);
 
@@ -89,7 +78,7 @@ class Browser extends React.Component {
 
   handleLoadCommit() {
     this.setState({
-      location: Browser.fixUrlDisplay(this.webview.getURL()),
+      location: this.webview.getURL(),
       canGoBack: this.webview.canGoBack(),
       canGoForward: this.webview.canGoForward(),
     });
