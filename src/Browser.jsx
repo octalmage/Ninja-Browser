@@ -36,6 +36,7 @@ class Browser extends React.Component {
     this.handleDomReady = this.handleDomReady.bind(this);
     this.handleWillNavigate = this.handleWillNavigate.bind(this);
     this.handleEvents = this.handleEvents.bind(this);
+    this.handleNavigateInPage = this.handleNavigateInPage.bind(this);
   }
 
   componentDidMount() {
@@ -50,6 +51,7 @@ class Browser extends React.Component {
     this.events = [
       { name: 'did-start-loading', handler: this.handleLoadStart },
       { name: 'will-navigate', handler: this.handleWillNavigate },
+      { name: 'did-navigate-in-page', handler: this.handleNavigateInPage },
       { name: 'did-stop-loading', handler: this.handleLoadStop },
       { name: 'did-get-redirect-request', handler: this.handleLoadRedirect },
       { name: 'did-finish-load', handler: this.handleLoadCommit },
@@ -65,6 +67,12 @@ class Browser extends React.Component {
 
   handleWillNavigate(e) {
     this.setState({ location: e.url });
+  }
+
+  handleNavigateInPage(e) {
+    if (e.isMainFrame) {
+      this.setState({ location: e.url });
+    }
   }
 
   handleDomReady() {
