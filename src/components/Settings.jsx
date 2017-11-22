@@ -59,6 +59,15 @@ class Settings extends React.PureComponent {
 
           <input
             type="checkbox"
+            name="escapeHotkey"
+            checked={settings.escapeHotkey}
+            onChange={this.handleCheck}
+          />{' '}
+          Enable escape hotkey to close window
+          <br />
+
+          <input
+            type="checkbox"
             name="runAtStartup"
             checked={settings.runAtStartup}
             onChange={this.handleCheck}
@@ -76,6 +85,7 @@ Settings.propTypes = {
   settings: PropTypes.shape({
     mouseGesture: PropTypes.bool,
     activationHotkey: PropTypes.bool,
+    escapeHotkey: PropTypes.bool,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
 };
