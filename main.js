@@ -14,6 +14,7 @@ const {
   Menu,
   Notification,
 } = electron;
+
 app.dock.hide();
 
 let mainWindow;
@@ -38,6 +39,7 @@ function getSettings() {
     mouseGesture: settings.get('mouseGesture', true),
     activationHotkey: settings.get('activationHotkey', true),
     runAtStartup: settings.get('runAtStartup', false),
+    escapeHotkey: settings.get('escapeHotkey', false),
   };
 }
 
@@ -87,8 +89,19 @@ function watchMouse() {
   }, 100);
 }
 
+function hideOnEscape(e, input) {
+  if (input.key === 'Escape') {
+    mainWindow.hide();
+  }
+}
+
 function processSettings() {
-  const { mouseGesture, activationHotkey, runAtStartup } = getSettings();
+  const {
+    mouseGesture,
+    activationHotkey,
+    runAtStartup,
+    escapeHotkey,
+  } = getSettings();
 
   if (mouseGesture) {
     watchMouse();
@@ -111,13 +124,19 @@ function processSettings() {
   } else if (app.getLoginItemSettings().openAtLogin) {
     app.setLoginItemSettings({ openAtLogin: false });
   }
+
+  if (escapeHotkey) {
+    mainWindow.webContents.on('before-input-event', hideOnEscape);
+  } else {
+    mainWindow.webContents.removeListener('before-input-event', hideOnEscape);
+  }
 }
 
 function createSettingsWindow() {
   const settingsWin = new BrowserWindow({
     toolbar: false,
-    width: 300,
-    height: 175,
+    width: 350,
+    height: 200,
     resizable: false,
     title: 'Settings',
   });
@@ -149,8 +168,6 @@ function createWindow() {
 
   appTray.setContextMenu(contextMenu);
 
-  processSettings();
-
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -159,7 +176,10 @@ function createWindow() {
     frame: false,
     resizable: false,
     hasShadow: false,
+    enableLargerThanScreen: true,
   });
+
+  processSettings();
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
@@ -167,7 +187,7 @@ function createWindow() {
     slashes: true,
   }));
 
-  mainWindow.on('blur', () => mainWindow.hide());
+  mainWindow.on('blur', mainWindow.hide);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
