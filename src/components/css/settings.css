@@ -1,0 +1,14 @@
+body {
+  background-color: #ececec;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h2 {
+  margin: 0;
+}
+
+.saveButton {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+}
