@@ -43,6 +43,7 @@
     "webpack": "^3.8.1"
   },
   "dependencies": {
+    "bs-platform": "^2.0.0",
     "electron-settings": "^3.1.4",
     "prop-types": "^15.6.0",
     "react": "^16.1.1",

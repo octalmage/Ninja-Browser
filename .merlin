@@ -1,0 +1,11 @@
+####{BSB GENERATED: NO EDIT
+B lib/bs
+FLG -open NinjaBrowser
+FLG -ppx /usr/local/lib/node_modules/bs-platform/bin/bsppx.exe
+S /Users/jason.stallings/Documents/Apps/Ninja-Browser/node_modules/bs-platform/lib/ocaml
+B /Users/jason.stallings/Documents/Apps/Ninja-Browser/node_modules/bs-platform/lib/ocaml
+FLG -nostdlib -no-alias-deps -color always
+FLG -w -30-40+6+7+27+32..39+44+45+101
+S src
+B lib/bs/src
+####BSB GENERATED: NO EDIT}

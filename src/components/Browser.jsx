@@ -34,6 +34,17 @@ class Browser extends React.Component {
     this.webview.addEventListener('dom-ready', () => {
       this.webview.insertCSS(transparentCSS);
     });
+
+    this.webview.addEventListener('keydown', (event) => {
+      console.log(event);
+      switch (event.key) {
+        case 'Escape':
+          alert('test');
+          break;
+        default:
+        // DO Nothing.
+      }
+    });
   }
 
   // We don't remove the loading class immediately, instead we let the animation

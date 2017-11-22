@@ -1,0 +1,13 @@
+{
+  "name": "ninja-browser",
+  "reason": {},
+  "bs-dependencies": [],
+  "package-specs": [{
+    "module": "commonjs",
+    "in-source": true
+  }],
+  "sources": ["src"],
+  "namespace": true,
+  "suffix": ".bs.js",
+  "refmt": 3
+}

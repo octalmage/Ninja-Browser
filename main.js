@@ -4,8 +4,8 @@ const url = require('url');
 const settings = require('electron-settings');
 const pkg = require('./package.json');
 const { exec, getBinPath } = require('./src/utilities');
-const getLargestElement = require('./src/getLargestElement');
-
+const { getLargestElement } = require('./src/getLargestElement.bs');
+console.log(getLargestElement);
 const {
   app,
   BrowserWindow,
@@ -21,8 +21,9 @@ let appTray = null;
 let watchMouseTimer;
 
 const isTrusted = getBinPath('isTrusted');
+const getElements = getBinPath('getElements');
 
-exec(isTrusted, (output) => {
+exec(isTrusted).then((output) => {
   if (output !== '1') {
     const notification = new Notification({
       title: 'Ninja Browser',
@@ -42,7 +43,10 @@ function getSettings() {
 }
 
 async function showWindow() {
-  const bounds = await getLargestElement();
+  const output = await exec(getElements);
+  // TODO: Catch parse errors.
+  const elements = JSON.parse(output);
+  const bounds = getLargestElement(elements);
   if (bounds) {
     mainWindow.setContentBounds(bounds, false);
     mainWindow.show();
@@ -100,7 +104,9 @@ function processSettings() {
 
   if (activationHotkey) {
     globalShortcut.register(accelerator, () => {
-      showWindow();
+      showWindow().catch((e) => {
+        console.log(e);
+      });
     });
   } else if (globalShortcut.isRegistered(accelerator)) {
     globalShortcut.unregister(accelerator);
