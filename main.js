@@ -40,6 +40,7 @@ function getSettings() {
     activationHotkey: settings.get('activationHotkey', true),
     runAtStartup: settings.get('runAtStartup', false),
     escapeHotkey: settings.get('escapeHotkey', false),
+    hideOnMouseOut: settings.get('hideOnMouseOut', true),
   };
 }
 
@@ -180,6 +181,12 @@ function createWindow() {
   });
 
   processSettings();
+
+  mainWindow.hideWindow = () => {
+    if (getSettings().hideOnMouseOut) {
+      mainWindow.hide();
+    }
+  };
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
