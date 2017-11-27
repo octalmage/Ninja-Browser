@@ -37,6 +37,13 @@ function getSettings() {
   };
 }
 
+function hideWindow() {
+  mainWindow.hide();
+  if (typeof app.hide === 'function') {
+    app.hide();
+  }
+}
+
 async function showWindow() {
   let bounds;
   try {
@@ -94,7 +101,7 @@ function watchMouse() {
 
 function hideOnEscape(e, input) {
   if (input.key === 'Escape') {
-    mainWindow.hide();
+    hideWindow();
   }
 }
 
@@ -190,7 +197,7 @@ function createWindow() {
     slashes: true,
   }));
 
-  mainWindow.on('blur', mainWindow.hide);
+  mainWindow.on('blur', hideWindow);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
