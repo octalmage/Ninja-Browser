@@ -3,7 +3,7 @@ const path = require('path');
 const url = require('url');
 const settings = require('electron-settings');
 const pkg = require('./package.json');
-const { exec, getBinPath } = require('./src/utilities');
+const { exec, getBinPath, displayNotification } = require('./src/utilities');
 const getLargestElement = require('./src/getLargestElement');
 
 const {
@@ -12,7 +12,6 @@ const {
   globalShortcut,
   Tray,
   Menu,
-  Notification,
 } = electron;
 
 app.dock.hide();
@@ -21,16 +20,11 @@ let mainWindow;
 let appTray = null;
 let watchMouseTimer;
 
-const isTrusted = getBinPath('isTrusted');
+const isTrusted = getBinPath('dist/isTrusted');
 
-exec(isTrusted, (output) => {
+exec(isTrusted).then((output) => {
   if (output !== '1') {
-    const notification = new Notification({
-      title: 'Ninja Browser',
-      body: 'Please grant Ninja Browser access to the Mac OS accessibility features, located in System Preferences.',
-    });
-
-    notification.show();
+    displayNotification('Please grant Ninja Browser access to the Mac OS accessibility features, located in System Preferences.');
   }
 });
 
@@ -45,7 +39,16 @@ function getSettings() {
 }
 
 async function showWindow() {
-  const bounds = await getLargestElement();
+  let bounds;
+  try {
+    bounds = await getLargestElement();
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      displayNotification('Error launching native code.');
+    } else {
+      displayNotification(e.toString());
+    }
+  }
   if (bounds) {
     mainWindow.setContentBounds(bounds, false);
     mainWindow.show();

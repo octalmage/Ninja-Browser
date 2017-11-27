@@ -53,7 +53,7 @@ func getBounds(element: AXUIElement) -> [String: Any] {
   }
 
   // Filter out small items.
-  if frame.height < 50 || frame.width < 50 {
+  if frame.height < 100 || frame.width < 100 {
     return [:]
   }
 

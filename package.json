@@ -5,15 +5,16 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "make:swift": "swiftc -sdk $(xcrun --show-sdk-path) -O getElements.swift",
-    "make:clang": "clang isTrusted.m -fmodules -mmacosx-version-min=10.7 -o isTrusted",
-    "make": "npm run make:swift && npm run make:clang && npm run webpack:build",
+    "make:getElements": "swiftc -sdk $(xcrun --show-sdk-path) -o dist/getElements -O getElements.swift",
+    "make:isTrusted": "clang -fmodules -mmacosx-version-min=10.7 -o dist/isTrusted isTrusted.m",
+    "make": "npm run make:getElements && npm run make:isTrusted && npm run webpack:build",
     "build": "npm run make && npm run electron-builder",
     "lint": "eslint *.js",
     "test": "npm run lint",
     "electron-builder": "electron-builder",
     "webpack:build": "webpack -p",
-    "webpack:watch": "webpack -w"
+    "webpack:watch": "webpack -w",
+    "install": "npm run make"
   },
   "repository": "https://github.com/octalmage/Ninja-Browser",
   "keywords": [
@@ -54,8 +55,8 @@
     "productName": "Ninja Browser",
     "asar": true,
     "asarUnpack": [
-      "getElements",
-      "isTrusted"
+      "dist/getElements",
+      "dist/isTrusted"
     ],
     "directories": {
       "buildResources": "resources",
