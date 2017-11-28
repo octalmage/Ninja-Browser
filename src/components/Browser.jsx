@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import { remote } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import { tldExists } from 'tldjs';
 import transparentCSS from './css/webview/transparent.css';
+
+const win = remote.getCurrentWindow();
 
 class Browser extends React.Component {
   constructor(props) {
@@ -26,6 +30,7 @@ class Browser extends React.Component {
     this.handleWillNavigate = this.handleWillNavigate.bind(this);
     this.handleEvents = this.handleEvents.bind(this);
     this.handleNavigateInPage = this.handleNavigateInPage.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
   componentDidMount() {
@@ -52,6 +57,10 @@ class Browser extends React.Component {
     this.events.forEach((event) => {
       this.webview[action](event.name, event.handler);
     });
+  }
+
+  handleMouseLeave() {
+    this.props.hideWindow();
   }
 
   handleWillNavigate(e) {
@@ -136,7 +145,7 @@ class Browser extends React.Component {
     } = this.state;
 
     return (
-      <div className={`${showLoadingAnimation && 'loading'}`}>
+      <div className={`${showLoadingAnimation && 'loading'}`} onMouseLeave={this.handleMouseLeave}>
         <div id="controls">
           <button
             id="back"
@@ -184,8 +193,14 @@ class Browser extends React.Component {
   }
 }
 
+Browser.propTypes = {
+  hideWindow: PropTypes.func.isRequired,
+};
+
 ReactDOM.render(
-  <Browser />,
+  <Browser
+    hideWindow={win.hideWindow}
+  />,
   document.getElementById('toolbar'),
 );
 

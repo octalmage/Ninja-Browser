@@ -14,6 +14,14 @@ class Settings extends React.PureComponent {
       settings: props.settings,
     };
 
+    this.settings = [
+      { name: 'mouseGesture', label: 'Enable mouse gesture' },
+      { name: 'activationHotkey', label: 'Enable activation hotkey' },
+      { name: 'escapeHotkey', label: 'Enable escape hotkey to close window' },
+      { name: 'hideOnMouseOut', label: 'Enable mouse out to close window.' },
+      { name: 'runAtStartup', label: 'Launch Ninja Browser at startup' },
+    ];
+
     this.handleCheck = this.handleCheck.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -39,41 +47,16 @@ class Settings extends React.PureComponent {
       <div>
         <h2>Settings</h2>
         <form onSubmit={this.handleSubmit}>
-          <input
-            type="checkbox"
-            name="mouseGesture"
-            checked={settings.mouseGesture}
-            onChange={this.handleCheck}
-          />{' '}
-          Enable mouse gesture
-          <br />
-
-          <input
-            type="checkbox"
-            name="activationHotkey"
-            checked={settings.activationHotkey}
-            onChange={this.handleCheck}
-          />{' '}
-          Enable activation hotkey
-          <br />
-
-          <input
-            type="checkbox"
-            name="escapeHotkey"
-            checked={settings.escapeHotkey}
-            onChange={this.handleCheck}
-          />{' '}
-          Enable escape hotkey to close window
-          <br />
-
-          <input
-            type="checkbox"
-            name="runAtStartup"
-            checked={settings.runAtStartup}
-            onChange={this.handleCheck}
-          />{' '}
-          Launch Ninja Browser at startup
-          <br />
+          {this.settings.map(setting => [
+            <input
+              type="checkbox"
+              name={setting.name}
+              checked={settings[setting.name]}
+              onChange={this.handleCheck}
+            />,
+            ` ${setting.label}`,
+            <br />,
+          ])}
           <input type="submit" value="Save" className="saveButton" />
         </form>
       </div>
