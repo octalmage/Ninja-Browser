@@ -3,7 +3,7 @@ import transparentCSS from './components/css/webview/transparent.css';
 function addStyleString(str) {
   const node = document.createElement('style');
   node.innerHTML = str;
-  document.body.appendChild(node);
+  document.head.appendChild(node);
 }
 
 function addStyles() {

@@ -194,7 +194,7 @@ function createWindow() {
 
   mainWindow.hideWindow = () => {
     if (getSettings().hideOnMouseOut) {
-      mainWindow.hide();
+      hideWindow();
     }
   };
 
