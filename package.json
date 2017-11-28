@@ -13,8 +13,7 @@
     "test": "npm run lint",
     "electron-builder": "electron-builder",
     "webpack:build": "webpack -p",
-    "webpack:watch": "webpack -w",
-    "install": "npm run make"
+    "webpack:watch": "webpack -w"
   },
   "repository": "https://github.com/octalmage/Ninja-Browser",
   "keywords": [
