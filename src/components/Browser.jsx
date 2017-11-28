@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { remote } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import { tldExists } from 'tldjs';
-import transparentCSS from './css/webview/transparent.css';
 
 const win = remote.getCurrentWindow();
 
@@ -26,7 +25,6 @@ class Browser extends React.Component {
     this.handleLoadCommit = this.handleLoadCommit.bind(this);
     this.handleReload = this.handleReload.bind(this);
     this.handleStopReloadAnimation = this.handleStopReloadAnimation.bind(this);
-    this.handleDomReady = this.handleDomReady.bind(this);
     this.handleWillNavigate = this.handleWillNavigate.bind(this);
     this.handleEvents = this.handleEvents.bind(this);
     this.handleNavigateInPage = this.handleNavigateInPage.bind(this);
@@ -49,7 +47,6 @@ class Browser extends React.Component {
       { name: 'did-stop-loading', handler: this.handleLoadStop },
       { name: 'did-get-redirect-request', handler: this.handleLoadRedirect },
       { name: 'did-finish-load', handler: this.handleLoadCommit },
-      { name: 'dom-ready', handler: this.handleDomReady },
     ];
 
     const action = add ? 'addEventListener' : 'removeEventListener';
@@ -71,10 +68,6 @@ class Browser extends React.Component {
     if (e.isMainFrame) {
       this.setState({ location: e.url });
     }
-  }
-
-  handleDomReady() {
-    this.webview.insertCSS(transparentCSS);
   }
 
   // We don't remove the loading class immediately, instead we let the animation
@@ -187,6 +180,7 @@ class Browser extends React.Component {
           ref={(r) => { this.webview = r; }}
           src="https://www.google.com/"
           className="webview"
+          preload="./dist/preload.js"
         />
       </div>
     );

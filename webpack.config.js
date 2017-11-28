@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     browser: './src/components/Browser.jsx',
     settings: './src/components/Settings.jsx',
+    preload: './src/preload.js',
   },
   output: {
     path: path.resolve('dist'),

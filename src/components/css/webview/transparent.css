@@ -1,7 +1,15 @@
-img {
+img, iframe {
   opacity: .1 !important;
 }
 
-img:hover {
+img:hover, iframe:hover {
   opacity: 1 !important;
+}
+
+div {
+  background-image: none !important;
+}
+
+div:hover {
+  background-image: inherit !important;
 }
