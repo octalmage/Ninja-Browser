@@ -29,7 +29,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.7",
-    "electron": "~1.7.8",
+    "electron": "^1.7.11",
     "electron-builder": "^19.27.7",
     "eslint": "^4.11.0",
     "eslint-config-airbnb": "^16.1.0",
