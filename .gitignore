@@ -1,8 +1,8 @@
 node_modules
 build
-getElements
 isTrusted
 dist
+.build
 
 # Windows image file caches
 Thumbs.db
