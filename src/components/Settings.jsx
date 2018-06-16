@@ -7,20 +7,20 @@ import './css/settings.css';
 const win = remote.getCurrentWindow();
 
 class Settings extends React.PureComponent {
+  // https://stackoverflow.com/a/34890276
+  static groupBy(xs, key) {
+    return xs.reduce((rv, x) => {
+      const newRv = rv;
+      (newRv[x[key]] = newRv[x[key]] || []).push(x);
+      return newRv;
+    }, {});
+  }
   constructor(props) {
     super(props);
 
     this.state = {
       settings: props.settings,
     };
-
-    this.settings = [
-      { name: 'mouseGesture', label: 'Enable mouse gesture' },
-      { name: 'activationHotkey', label: 'Enable activation hotkey' },
-      { name: 'escapeHotkey', label: 'Enable escape hotkey to close window' },
-      { name: 'hideOnMouseOut', label: 'Enable mouse out to close window.' },
-      { name: 'runAtStartup', label: 'Launch Ninja Browser at startup' },
-    ];
 
     this.handleCheck = this.handleCheck.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -43,20 +43,28 @@ class Settings extends React.PureComponent {
 
   render() {
     const { settings } = this.state;
+    const { settingsLabels } = this.props;
+
+    const groupedSettings = Settings.groupBy(settingsLabels, 'section');
+
     return (
       <div>
         <h2>Settings</h2>
         <form onSubmit={this.handleSubmit}>
-          {this.settings.map(setting => [
-            <input
-              type="checkbox"
-              name={setting.name}
-              checked={settings[setting.name]}
-              onChange={this.handleCheck}
-            />,
-            ` ${setting.label}`,
-            <br />,
-          ])}
+          {Object.keys(groupedSettings).map(section => [
+            <h3>{section}</h3>,
+            groupedSettings[section].map(setting => [
+              <input
+                type="checkbox"
+                name={setting.name}
+                checked={settings[setting.name]}
+                onChange={this.handleCheck}
+              />,
+              ` ${setting.label}`,
+              <br />,
+            ]),
+          ])
+        }
           <input type="submit" value="Save" className="saveButton" />
         </form>
       </div>
@@ -71,12 +79,17 @@ Settings.propTypes = {
     escapeHotkey: PropTypes.bool,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
+  settingsLabels: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string,
+    label: PropTypes.string,
+  })).isRequired,
 };
 
 ReactDOM.render(
   <Settings
     settings={win.settings}
     updateSettings={settings => win.updateSettings(settings)}
+    settingsLabels={win.settingsLabels}
   />,
   document.body,
 );

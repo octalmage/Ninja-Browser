@@ -1,10 +1,11 @@
 const electron = require('electron'); // eslint-disable-line import/no-extraneous-dependencies
 const path = require('path');
 const url = require('url');
-const settings = require('electron-settings');
 const pkg = require('./package.json');
+const { getSettings, defaultSettings, saveSettings } = require('./src/settings');
 const { exec, getBinPath, displayNotification } = require('./src/utilities');
 const getLargestElement = require('./src/getLargestElement');
+const EventEmitter = require('events');
 
 const {
   app,
@@ -13,6 +14,8 @@ const {
   Tray,
   Menu,
 } = electron;
+
+const browserEvents = new EventEmitter();
 
 app.dock.hide();
 
@@ -27,16 +30,6 @@ exec(isTrusted).then((output) => {
     displayNotification('Please grant Ninja Browser access to the Mac OS accessibility features, located in System Preferences.');
   }
 });
-
-function getSettings() {
-  return {
-    mouseGesture: settings.get('mouseGesture', true),
-    activationHotkey: settings.get('activationHotkey', true),
-    runAtStartup: settings.get('runAtStartup', false),
-    escapeHotkey: settings.get('escapeHotkey', false),
-    hideOnMouseOut: settings.get('hideOnMouseOut', true),
-  };
-}
 
 function hideWindow() {
   mainWindow.hide();
@@ -112,6 +105,7 @@ function processSettings() {
     activationHotkey,
     runAtStartup,
     escapeHotkey,
+    grayScaleWebpage,
   } = getSettings();
 
   if (mouseGesture) {
@@ -141,20 +135,24 @@ function processSettings() {
   } else {
     mainWindow.webContents.removeListener('before-input-event', hideOnEscape);
   }
+
+  mainWindow.grayScaleWebpage = grayScaleWebpage;
+  browserEvents.emit('sync');
 }
 
 function createSettingsWindow() {
   const settingsWin = new BrowserWindow({
     toolbar: false,
     width: 350,
-    height: 200,
+    height: 275,
     resizable: false,
     title: 'Settings',
   });
 
   settingsWin.settings = getSettings();
+  settingsWin.settingsLabels = defaultSettings;
   settingsWin.updateSettings = (newSettings) => {
-    settings.setAll(newSettings);
+    saveSettings(newSettings);
     settingsWin.close();
     processSettings();
   };
@@ -197,6 +195,9 @@ function createWindow() {
       hideWindow();
     }
   };
+
+  mainWindow.grayScaleWebpage = getSettings().grayScaleWebpage;
+  mainWindow.events = browserEvents;
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),

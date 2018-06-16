@@ -1,3 +1,4 @@
+import { getSettings } from './settings';
 import transparentCSS from './components/css/webview/transparent.css';
 
 function addStyleString(str) {
@@ -8,7 +9,10 @@ function addStyleString(str) {
 
 function addStyles() {
   if (document.body) {
-    addStyleString(transparentCSS);
+    const { transparentImages } = getSettings();
+    if (transparentImages) {
+      addStyleString(transparentCSS);
+    }
   } else {
     setTimeout(addStyles, 10);
   }

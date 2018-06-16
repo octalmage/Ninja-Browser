@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { remote } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import { tldExists } from 'tldjs';
+import classNames from 'classnames';
 
 const win = remote.getCurrentWindow();
 
@@ -33,6 +34,11 @@ class Browser extends React.Component {
 
   componentDidMount() {
     this.handleEvents(true);
+  }
+
+  componentWillReceiveProps() {
+    // Reload webview to force the preload script to grab the new settings.
+    this.webview.reload();
   }
 
   componentWillUnmount() {
@@ -136,6 +142,7 @@ class Browser extends React.Component {
       canGoForward,
       showLoadingAnimation,
     } = this.state;
+    const { grayScaleWebpage } = this.props;
 
     return (
       <div className={`${showLoadingAnimation && 'loading'}`} onMouseLeave={this.handleMouseLeave}>
@@ -177,9 +184,9 @@ class Browser extends React.Component {
           </form>
         </div>
         <webview
+          className={classNames('webview', { grayscale: grayScaleWebpage })}
           ref={(r) => { this.webview = r; }}
           src="https://www.google.com/"
-          className="webview"
           preload="./dist/preload.js"
         />
       </div>
@@ -189,13 +196,21 @@ class Browser extends React.Component {
 
 Browser.propTypes = {
   hideWindow: PropTypes.func.isRequired,
+  grayScaleWebpage: PropTypes.bool.isRequired,
 };
 
-ReactDOM.render(
-  <Browser
-    hideWindow={win.hideWindow}
-  />,
-  document.getElementById('toolbar'),
-);
+const renderBrowser = () => {
+  ReactDOM.render(
+    <Browser
+      hideWindow={win.hideWindow}
+      grayScaleWebpage={win.grayScaleWebpage}
+    />,
+    document.getElementById('toolbar'),
+  );
+};
+
+renderBrowser();
+
+win.events.on('sync', () => renderBrowser());
 
 export default Browser;
