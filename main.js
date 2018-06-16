@@ -20,6 +20,7 @@ const browserEvents = new EventEmitter();
 app.dock.hide();
 
 let mainWindow;
+let settingsWin;
 let appTray = null;
 let watchMouseTimer;
 
@@ -33,9 +34,14 @@ exec(isTrusted).then((output) => {
 
 function hideWindow() {
   mainWindow.hide();
+  // This is needed to activate the next window.
   if (typeof app.hide === 'function') {
     app.hide();
   }
+}
+
+function settingsWinShowing() {
+  return settingsWin && !settingsWin.isDestroyed();
 }
 
 async function showWindow() {
@@ -49,6 +55,11 @@ async function showWindow() {
       displayNotification(e.toString());
     }
   }
+
+  if (settingsWinShowing()) {
+    settingsWin.destroy();
+  }
+
   if (bounds) {
     mainWindow.setContentBounds(bounds, false);
     mainWindow.show();
@@ -141,13 +152,26 @@ function processSettings() {
 }
 
 function createSettingsWindow() {
-  const settingsWin = new BrowserWindow({
+  // If the settings window is already open, just show it.
+  if (settingsWinShowing()) {
+    settingsWin.show();
+    return;
+  }
+
+  // Hide the browser window before showing the settings dialog, since hideWindow
+  // calls hide.app().
+  mainWindow.blur();
+
+  settingsWin = new BrowserWindow({
     toolbar: false,
     width: 350,
     height: 275,
     resizable: false,
     title: 'Settings',
   });
+
+  // Since hiding the mainWindow runs app.hide, we need to run app.show().
+  setImmediate(() => app.show());
 
   settingsWin.settings = getSettings();
   settingsWin.settingsLabels = defaultSettings;
