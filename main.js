@@ -1,10 +1,11 @@
 const electron = require('electron'); // eslint-disable-line import/no-extraneous-dependencies
 const path = require('path');
 const url = require('url');
-const settings = require('electron-settings');
 const pkg = require('./package.json');
+const { getSettings, defaultSettings, saveSettings } = require('./src/settings');
 const { exec, getBinPath, displayNotification } = require('./src/utilities');
 const getLargestElement = require('./src/getLargestElement');
+const EventEmitter = require('events');
 
 const {
   app,
@@ -14,9 +15,12 @@ const {
   Menu,
 } = electron;
 
+const browserEvents = new EventEmitter();
+
 app.dock.hide();
 
 let mainWindow;
+let settingsWin;
 let appTray = null;
 let watchMouseTimer;
 
@@ -28,21 +32,16 @@ exec(isTrusted).then((output) => {
   }
 });
 
-function getSettings() {
-  return {
-    mouseGesture: settings.get('mouseGesture', true),
-    activationHotkey: settings.get('activationHotkey', true),
-    runAtStartup: settings.get('runAtStartup', false),
-    escapeHotkey: settings.get('escapeHotkey', false),
-    hideOnMouseOut: settings.get('hideOnMouseOut', true),
-  };
-}
-
 function hideWindow() {
   mainWindow.hide();
+  // This is needed to activate the next window.
   if (typeof app.hide === 'function') {
     app.hide();
   }
+}
+
+function settingsWinShowing() {
+  return settingsWin && !settingsWin.isDestroyed();
 }
 
 async function showWindow() {
@@ -56,6 +55,11 @@ async function showWindow() {
       displayNotification(e.toString());
     }
   }
+
+  if (settingsWinShowing()) {
+    settingsWin.destroy();
+  }
+
   if (bounds) {
     mainWindow.setContentBounds(bounds, false);
     mainWindow.show();
@@ -112,6 +116,7 @@ function processSettings() {
     activationHotkey,
     runAtStartup,
     escapeHotkey,
+    grayScaleWebpage,
   } = getSettings();
 
   if (mouseGesture) {
@@ -141,20 +146,37 @@ function processSettings() {
   } else {
     mainWindow.webContents.removeListener('before-input-event', hideOnEscape);
   }
+
+  mainWindow.grayScaleWebpage = grayScaleWebpage;
+  browserEvents.emit('sync');
 }
 
 function createSettingsWindow() {
-  const settingsWin = new BrowserWindow({
+  // If the settings window is already open, just show it.
+  if (settingsWinShowing()) {
+    settingsWin.show();
+    return;
+  }
+
+  // Hide the browser window before showing the settings dialog, since hideWindow
+  // calls hide.app().
+  mainWindow.blur();
+
+  settingsWin = new BrowserWindow({
     toolbar: false,
     width: 350,
-    height: 200,
+    height: 275,
     resizable: false,
     title: 'Settings',
   });
 
+  // Since hiding the mainWindow runs app.hide, we need to run app.show().
+  setImmediate(() => app.show());
+
   settingsWin.settings = getSettings();
+  settingsWin.settingsLabels = defaultSettings;
   settingsWin.updateSettings = (newSettings) => {
-    settings.setAll(newSettings);
+    saveSettings(newSettings);
     settingsWin.close();
     processSettings();
   };
@@ -197,6 +219,9 @@ function createWindow() {
       hideWindow();
     }
   };
+
+  mainWindow.grayScaleWebpage = getSettings().grayScaleWebpage;
+  mainWindow.events = browserEvents;
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
