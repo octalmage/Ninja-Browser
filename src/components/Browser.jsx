@@ -30,6 +30,7 @@ class Browser extends React.Component {
     this.handleEvents = this.handleEvents.bind(this);
     this.handleNavigateInPage = this.handleNavigateInPage.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.handleWindowHide = this.handleWindowHide.bind(this);
   }
 
   componentDidMount() {
@@ -56,10 +57,17 @@ class Browser extends React.Component {
     ];
 
     const action = add ? 'addEventListener' : 'removeEventListener';
+    const eventEmitterAction = add ? 'on' : 'off';
 
     this.events.forEach((event) => {
       this.webview[action](event.name, event.handler);
     });
+
+    win.events[eventEmitterAction]('hide', this.handleWindowHide);
+  }
+
+  handleWindowHide(hidden) {
+    this.webview.setAudioMuted(hidden);
   }
 
   handleMouseLeave() {
