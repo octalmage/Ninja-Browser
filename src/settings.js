@@ -43,6 +43,12 @@ const defaultSettings = [
     default: true,
     section: 'Hiding Options',
   },
+  {
+    name: 'muteOnHide',
+    label: 'Mute browser on hide',
+    default: true,
+    section: 'Sound',
+  },
 ];
 
 module.exports.defaultSettings = defaultSettings;

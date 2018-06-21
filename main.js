@@ -38,6 +38,10 @@ function hideWindow() {
   if (typeof app.hide === 'function') {
     app.hide();
   }
+
+  if (getSettings().muteOnHide) {
+    browserEvents.emit('hide', true);
+  }
 }
 
 function settingsWinShowing() {
@@ -64,6 +68,8 @@ async function showWindow() {
     mainWindow.setContentBounds(bounds, false);
     mainWindow.show();
   }
+
+  browserEvents.emit('hide', false);
 }
 
 function watchMouse() {
@@ -165,7 +171,7 @@ function createSettingsWindow() {
   settingsWin = new BrowserWindow({
     toolbar: false,
     width: 350,
-    height: 275,
+    height: 300,
     resizable: false,
     title: 'Settings',
   });
