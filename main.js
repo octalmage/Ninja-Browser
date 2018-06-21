@@ -5,6 +5,7 @@ const pkg = require('./package.json');
 const { getSettings, defaultSettings, saveSettings } = require('./src/settings');
 const { exec, getBinPath, displayNotification } = require('./src/utilities');
 const getLargestElement = require('./src/getLargestElement');
+const createApplicationMenu = require('./src/createApplicationMenu');
 const EventEmitter = require('events');
 
 const {
@@ -234,6 +235,8 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  createApplicationMenu(app, Menu);
 }
 
 app.on('ready', createWindow);
