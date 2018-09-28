@@ -1,7 +1,7 @@
 # Ninja Browser
 
 <p align="center">
-	<img src=".github/screenshot.png" />
+	<img src="https://raw.githubusercontent.com/octalmage/Ninja-Browser/master/.github/screenshot.png" />
 </p>
 
 ## Description
@@ -14,17 +14,17 @@ For example, move the mouse to the left side, then the right, then the left side
 
 ## Demo
 
-![](.github/demo.gif)
+![](https://cdn.rawgit.com/octalmage/Ninja-Browser/master/.github/demo.gif)
 
 ## Usage
 
 After opening Ninja Browser for the first time you need to grant it access to the Mac accessibility API. This is needed to allow Ninja Browser to find the optimal hiding place. You'll be prompted to open System Preferences:
 
-![](.github/prompt.png)
+![](https://cdn.rawgit.com/octalmage/Ninja-Browser/master/.github/prompt.png)
 
 Then make sure Ninja Browser is checked in the accessibility list:
 
-![](.github/preferences.png)
+![](https://cdn.rawgit.com/octalmage/Ninja-Browser/master/.github/preferences.png)
 
 Then you're ready to go! Open Ninja Browser using the hotkey <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>b</kbd>, or by moving the mouse to each side of the screen.
 
